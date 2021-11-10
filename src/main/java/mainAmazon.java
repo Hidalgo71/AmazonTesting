@@ -5,39 +5,50 @@ import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.util.stream.Stream;
+
 public class mainAmazon
 {
-    WebDriver amzDriver = new ChromeDriver();
+    static WebDriver amzDriver;
 
-    public void main(String[] args)
+    public static void main(String[] args)
     {
         DesiredCapabilities chDCap = DesiredCapabilities.chrome();
         chDCap.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
         chDCap.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);                    //Certification
         System.setProperty("webdriver.chrome.driver", "D:\\Docs\\Drivers\\chromedriver.exe");
-
+        amzDriver = new ChromeDriver();
         amzDriver.get("https://www.amazon.com.tr");
         amzDriver.manage().window().maximize();
-        amzDriver.findElement(By.id("sp-cc-accept")).click();
         amzDriver.manage().deleteAllCookies();
         WebDriverWait expWait = new WebDriverWait(amzDriver, 3);
 
-        String[] pcParts = new String[]
-                {"Asus X570", "AMD Ryzen 5600X", "Kingston HyperX Beast", "Asus RTX 3070", "Samsung 970 Evo Plus"};
+        TypeClick();
 
-        for (int i = 0; i < pcParts.length; i++)
+    }
+
+    public static void TypeClick()
+    {
+        String[] pcParts = new String[]
+        {"Asus X570", "AMD Ryzen 5600X", "Kingston HyperX Beast", "Asus RTX 3070", "Samsung 970 Evo Plus"};
+        for (String pcPart : pcParts)
         {
-            amzDriver.findElement(By.id("twotabsearchtextbox")).sendKeys(pcParts[i]);
+            amzDriver.findElement(By.id("sp-cc-accept")).click();
+            amzDriver.findElement(By.id("twotabsearchtextbox")).sendKeys(pcPart);
             amzDriver.findElement(By.id("nav-search-submit-button")).click();
-            SearchItem();
             amzDriver.findElement(By.id("twotabsearchtextbox")).clear();
+            SearchItem();
+        }
+    }
+    public static void SearchItem()
+    {
+        for (int i = 0; i < amzDriver.findElements(By.xpath("span[class='a-size-base a-color-base a-text-normal']")).size(); i++)
+        {
+            String longTxt = amzDriver.findElement(By.xpath("span[class='a-size-base a-color-base a-text-normal']")).getText();
+            //Stream.of(longTxt).filter(l -> l.contains("X570-Plus"));
+            Stream.of(longTxt).filter(l -> l.equalsIgnoreCase("X570-Plus"));
+            amzDriver.findElement(By.className("span[class='a-size-base a-color-base a-text-normal']")).click();
 
         }
     }
-
-    private void SearchItem()
-    {
-
-    }
-
 }
